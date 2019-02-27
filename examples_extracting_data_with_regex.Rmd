@@ -1,0 +1,82 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Example 1: solution using base
+Source: https://stackoverflow.com/a/37664585/5270873
+
+```{r}
+x <- c("*******************************", "Sensor 1028 at site 101", 
+    "SID = 16384", "Tag = AI.1028.BT.VOLT", "04/07/16 05:00:00  12.65", 
+    "04/07/16 06:00:00  12.64", "04/07/16 07:00:00  12.68", "04/07/16 08:00:00  13.08", 
+    "04/07/16 09:00:00  13.76", "*******************************", 
+    "Sensor 1171 at well 102", "SID = 20062", "Tag = AI.1171.WT.LEV", 
+    "04/07/16 05:00:00  0.95", "04/07/16 06:00:00  0.90", "04/07/16 07:00:00  0.82", 
+    "04/07/16 08:00:00  0.71", "04/07/16 09:00:00  0.59", "04/07/16 10:00:00  0.48"
+    )
+
+sensor_rows <- grep("^Sensor", x)
+sensor_rows
+```
+
+```{r}
+# extract the sensor number
+sub("^Sensor (\\d+)+.*", "\\1", x[sensor_rows[1]])
+```
+
+```{r}
+# extract the site
+sub("^Sensor (\\d+)+.*(\\d+)+", "\\2", x[sensor_rows[1]])
+```
+
+```{r}
+grep("^Sensor (\\d+)+.*", x[sensor_rows[1]], value = TRUE)
+```
+
+
+# Example 2
+Source: https://stackoverflow.com/a/37665045/5270873
+
+
+```{r}
+# sensortext <- readLines('sensors.txt')
+sensortext <- x
+
+# create a list of paragraphs that match the asterisk
+rawlist <- split(sensortext, cumsum(grepl(pattern = '\\*+', sensortext)))
+
+# extract a dataframe with two columns of 17 and 7 characters
+# x[-c(1:4)])       will ignore the first 4 rows in the vector
+# widths = c(17,7)  widths of the date and value
+l <- lapply(rawlist, function(x) 
+    read.fwf(textConnection(x[-c(1:4)]), widths = c(17,7), header = FALSE))
+
+reps <- sapply(l, nrow)   # number of position rows
+
+df <- do.call(rbind, l)                        # combine the dataframes
+df$V1 <- strptime(df$V1, '%d/%m/%y %H:%M:%S')  # convert the dates
+names(df) <- c('datetime','value')             # assign new names
+
+# extract the tag
+df$tag <- rep(as.numeric(gsub('^.*(\\d+{4}).*','\\1', 
+                              grep('Tag =', sensortext, value = TRUE))), reps)
+# extract the SID
+df$sid  <- rep(as.numeric(gsub('^.*(\\d+{5}).*','\\1', 
+                               grep('SID = ', sensortext, value = TRUE))), reps)
+
+# extract the type of site: site or well
+# rep(sapply(      repeat the sapply for 'reps' number of times    
+# grep('Sensor ',  the line where we find 'Sensor'
+# '[', 4)          the element 4 of the vector
+df$type  <- rep(sapply(strsplit(
+    grep('Sensor ', sensortext, value = TRUE),' '), '[', 4), reps)
+
+# extract remote sensor number
+# '^.*(\\d+{3}).*'    extract 3 digits from the 'Sensor' line
+df$type.nr <- rep(as.numeric(gsub('^.*(\\d+{3}).*','\\1', 
+                                  grep('Sensor ', sensortext, value = TRUE))), reps)
+
+df
+```
+

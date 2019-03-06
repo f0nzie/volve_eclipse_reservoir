@@ -1,0 +1,19 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(dplyr)
+
+# read the Eclipse report
+proj_root <- rprojroot::find_rstudio_root_file()
+# had to zip the PRT file because 225 MB and too big for Github
+volve_2016_zip <- file.path(proj_root, "inst/rawdata", "VOLVE_2016.zip")
+temp <- tempdir()
+
+volve_2016_txt <- readLines(unzip(volve_2016_zip, exdir = temp))
+```
+
+
+

@@ -132,14 +132,16 @@ As we mentioned earlier, we will be reading the data from the output file from t
 
 It will take few seconds to read since it is a 228 megabytes file.
 
-```{r}
+```{r read-prt-file}
 library(dplyr)
 
 # read the Eclipse report
 proj_root <- rprojroot::find_rstudio_root_file()
-volve_2016_prt <- file.path(proj_root, "inst/rawdata", "VOLVE_2016.PRT")
+# had to zip the PRT file because 225 MB and too big for Github
+volve_2016_zip <- file.path(proj_root, "inst/rawdata", "VOLVE_2016.zip")
+temp <- tempdir()
 
-volve_2016_txt <- readLines(volve_2016_prt)
+volve_2016_txt <- readLines(unzip(volve_2016_zip, exdir = temp))
 ```
 
 There is one set of data we are interested in: the cumulative production data. This data can be located in the report by using the find tool in the text editor searching for the keyword `BALANCE  AT`.
@@ -329,18 +331,20 @@ library(scales)
 (cum_oil_prod_hist_by_year <- sum(oil_by_year$cum_oil))
 ```
 
-Summing up the cumulative oil by year we get `r comma(cum_oil_prod_hist_by_year)` sm3.
+Summing up the cumulative oil by year for the production history we get `r comma(cum_oil_prod_hist_by_year)` sm3.
 
 ```{r}
 
 (cum_oil_prod_hist_by_well <- sum(oil_by_well$cum_oil))
 ```
 
-We do the same thing but from other cumlulative, oil by well: `r comma(cum_oil_prod_hist_by_well)` sm3.
+We do the same thing but from other historic oil cumulative, oil by well: `r comma(cum_oil_prod_hist_by_well)` sm3.
+
+No surprises here. Both should be the same. They are just grouped by different variables.
 
 
 # Comparing the simulator output vs production history
-FInally, we compare the simulator output against the production history.
+FInally, we compare the simulator production output against the production history.
 
 ```{r}
 (ootw_field_total <- tail(field_totals$oil_otw, 1))

@@ -263,9 +263,11 @@ library(dplyr)
 
 # read the Eclipse report
 proj_root <- rprojroot::find_rstudio_root_file()
-volve_2016_prt <- file.path(proj_root, "inst/rawdata", "VOLVE_2016.PRT")
+# had to zip the PRT file because 225 MB and too big for Github
+volve_2016_zip <- file.path(proj_root, "inst/rawdata", "VOLVE_2016.zip")
+temp <- tempdir()
 
-volve_2016_txt <- readLines(volve_2016_prt)
+volve_2016_txt <- readLines(unzip(volve_2016_zip, exdir = temp))
 ```
 
 There is one set of data we are interested in: the cumulative production
@@ -558,7 +560,8 @@ library(scales)
 #> [1] 10037081
 ```
 
-Summing up the cumulative oil by year we get 10,037,081 sm3.
+Summing up the cumulative oil by year for the production history we get
+10,037,081 sm3.
 
 ``` r
 
@@ -566,12 +569,16 @@ Summing up the cumulative oil by year we get 10,037,081 sm3.
 #> [1] 10037081
 ```
 
-We do the same thing but from other cumlulative, oil by well: 10,037,081
-sm3.
+We do the same thing but from other historic oil cumulative, oil by
+well: 10,037,081 sm3.
+
+No surprises here. Both should be the same. They are just grouped by
+different variables.
 
 # Comparing the simulator output vs production history
 
-FInally, we compare the simulator output against the production history.
+FInally, we compare the simulator production output against the
+production history.
 
 ``` r
 (ootw_field_total <- tail(field_totals$oil_otw, 1))

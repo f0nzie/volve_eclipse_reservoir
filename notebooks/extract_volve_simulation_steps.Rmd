@@ -1,0 +1,182 @@
+---
+title: "Read STEP, PAV, GOR, WCT, WGR"
+output: html_notebook
+---
+
+```{r}
+library(dplyr)
+
+# read the Eclipse report
+volve_2016_prt <- "VOLVE_2016.PRT"
+
+volve_2016_txt <- readLines(volve_2016_prt)
+```
+
+
+```{r}
+# get a list of rows from "BALANCE  AT" for 22 more rows ahead
+
+# find the rows where we find the word "BALANCE  AT"
+step_rows <- grep("^ STEP", volve_2016_txt)
+
+# add rows ahead to where the word BALANCE AT was found
+step_info_range <- lapply(seq_along(step_rows), function(x) 
+    c(step_rows[x], step_rows[x]+1:2))
+
+step_info_range[[1]]   # sample for report page 1 only
+```
+
+
+```{r}
+# get the text from all pages and put them in a list
+steps_info_txt_pages <- lapply(seq_along(step_info_range), function(x) 
+    volve_2016_txt[step_info_range[[x]]])
+```
+ 
+ 
+```{r}
+# iterate through the list of pages
+days_dfs <- lapply(seq_along(steps_info_txt_pages), function(x) {
+    page <- steps_info_txt_pages[[x]]  # put all pages text in a list
+    days_row_txt <- page[1] # get 1st row of page
+    days_value <- sub(".*?(\\d+.\\d.)+.*", "\\1", days_row_txt) # extract the days
+    
+    # dataframe
+    data.frame(days = days_value) 
+})
+
+days_df <- do.call("rbind", days_dfs)
+days_df
+```
+ 
+```{r}
+# iterate through the list of pages: dates
+date_dfs <- lapply(seq_along(steps_info_txt_pages), function(x) {
+    page <- steps_info_txt_pages[[x]]  # put all pages text in a list
+    date_row_txt <- grep(" STEP", page)
+    date_value <- sub(".*?(\\d{1,2}-[A-Z]{3}-\\d{4}).", "\\1", page[date_row_txt])
+    
+    # dataframe
+    data.frame(date = date_value) 
+})
+
+date_df <- do.call("rbind", date_dfs)
+date_df
+``` 
+
+## Extract the GOR value
+### Explanation
+
+* `.*GOR=.*?`: any characters up to "GOR="
+* `(\\d+.\\d+)`: capture group of digits, dot. and digits
+* `.*`: any characters to the end
+
+```{r}
+# iterate through the list of pages: dates
+gor_dfs <- lapply(seq_along(steps_info_txt_pages), function(x) {
+    page <- steps_info_txt_pages[[x]]  # put all pages text in a list
+    gor_row_txt <- grep(" GOR", page)
+    gor_value <- sub(".*GOR=.*?(\\d+.\\d+).*", "\\1", page[gor_row_txt])
+    
+    # dataframe
+    data.frame(gor = gor_value, stringsAsFactors = FALSE) 
+})
+
+gor_df <- do.call("rbind", gor_dfs)
+gor_df
+```  
+## Water Gas Ratio (WGR)
+###
+
+```{r}
+# iterate through the list of pages: WATERCUT
+wgr_dfs <- lapply(seq_along(steps_info_txt_pages), function(x) {
+    page <- steps_info_txt_pages[[x]]  # put all pages text in a list
+    row_txt <- grep(" WGR=", page)
+    wgr_value <- sub(".*WGR=.*?(\\d+.\\d+).*", "\\1", page[row_txt])
+    
+    # dataframe
+    data.frame(wgr = wgr_value, stringsAsFactors = FALSE) 
+})
+
+wgr_df <- do.call("rbind", wgr_dfs)
+wgr_df
+```  
+
+
+```{r rows.print=50}
+# iterate through the list of pages
+step_info_dfs <- lapply(seq_along(steps_info_txt_pages), function(x) {
+    page <- steps_info_txt_pages[[x]]             # put all pages text in a list
+    row_txt <- grep(" STEP", page)
+    date_value <- sub(".*?(\\d{1,2}-[A-Z]{3}-\\d{4}).", "\\1", page[row_txt])
+    # step number
+    step_value <- sub(".*STEP.*?(\\d+)+.*", "\\1", page[row_txt]) # extract the days
+    # get step in days
+    row_txt <- grep(" TIME", page)
+    days_value <- sub(".*TIME=.*?(\\d+.\\d.)+.*", "\\1", page[row_txt]) # extract the days
+    # Get the average pressure PAV
+    row_txt <- grep(" PAV", page)
+    pav_value <- sub(".*PAV=.*?(\\d+.\\d+).*", "\\1", page[row_txt])
+    # get the GOR
+    row_txt <- grep(" GOR", page)
+    gor_value <- sub(".*GOR=.*?(\\d+.\\d+).*", "\\1", page[row_txt])
+    # get the WGR
+    row_txt <- grep(" WGR=", page)
+    wgr_value <- sub(".*WGR=.*?(\\d+.\\d+).*", "\\1", page[row_txt])
+
+    
+    # dataframe
+    data.frame(step=step_value, date = date_value, days = days_value, 
+               pav_bar = pav_value, gor_m3m3 = gor_value, wgr_m3m3 = wgr_value,
+               stringsAsFactors = FALSE) 
+})
+
+step_info <- do.call("rbind", step_info_dfs)
+step_info
+```
+ 
+
+```{r rows.print=50}
+# find the rows where we find the keyword " STEP"
+step_rows <- grep("^ STEP", volve_2016_txt)
+
+# get rows ahead range. by block of text or per page
+step_info_range <- lapply(seq_along(step_rows), function(x) 
+    c(step_rows[x], step_rows[x]+1:2))
+
+# get the text from all pages and put each in a list
+steps_info_txt_pages <- lapply(seq_along(step_info_range), function(x) 
+    volve_2016_txt[step_info_range[[x]]])
+
+# iterate through the list of pages for the step blocks in the report
+step_info_dfs <- lapply(seq_along(steps_info_txt_pages), function(x) {
+    page <- steps_info_txt_pages[[x]]             # put all pages text in a list
+    # this is line 1
+    row_txt <- grep(" STEP", page)  # line 1 starts with STEP
+    line_1_pattern <- ".*?(\\d+)+.*?(\\d+.\\d+)+.*?(\\d+)+.*?(\\d{1,2}-[A-Z]{3}-\\d{4})+.*"
+    step_value <- sub(line_1_pattern, "\\1", page[row_txt], perl = TRUE) # extract step
+    days_value <- sub(line_1_pattern, "\\2", page[row_txt], perl = TRUE) # extract days
+    date_value <- sub(line_1_pattern, "\\4", page[row_txt], perl = TRUE) # extract date
+    # this is line 2
+    row_txt <- grep(" PAV", page) # line 2 starts with PAV=
+    line_2_pattern <- ".*?(\\d+.\\d+)+.*?(\\d+.\\d+)+.*?(\\d+.\\d+)+.*?(\\d+.\\d+).*"
+    pav_value <- sub(line_2_pattern, "\\1", page[row_txt], perl = TRUE) # Get avg pres
+    wct_value <- sub(line_2_pattern, "\\2", page[row_txt], perl = TRUE) # get WCT
+    gor_value <- sub(line_2_pattern, "\\3", page[row_txt], perl = TRUE) # get GOR
+    wgr_value <- sub(line_2_pattern, "\\4", page[row_txt], perl = TRUE) # get WGR
+    
+    # dataframe
+    data.frame(step = step_value, 
+               date = date_value, 
+               days = days_value, 
+               pav_bar = pav_value,
+               wct_pct = wct_value,
+               gor_m3m3 = gor_value, 
+               wgr_m3m3 = wgr_value,
+               stringsAsFactors = FALSE) 
+})
+
+step_info <- do.call("rbind", step_info_dfs)
+step_info
+``` 

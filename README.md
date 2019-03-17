@@ -1,4 +1,5 @@
-Reservoir history matching with the Volve dataset
+The fabrication of an artificial intelligence agent for reservoir
+history matching from the Volve dataset
 ================
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -142,7 +143,7 @@ based on the reading of relevant papers:
 
 # First steps: the Volve reservoir dataset
 
-Last year Equinor release a huge dataset for the [Volve
+Last year Equinor release a huge dataset for the [Vodones lve
 field](https://www.equinor.com/en/news/14jun2018-disclosing-volve-data.html).
 Many terabytes of data, approximately 4298 gigabytes of it.
 
@@ -759,3 +760,11 @@ This is a preliminary set of steps for the continuation of such process:
 
   - Zubarev 2009. “Pros and Cons of applying proxy models as substitute
     of full reservoir simulations”.
+
+# Supplemental material
+
+  - Dataset.
+    [10.5281/zenodo.2586209](https://doi.org/10.5281/zenodo.2586209)
+
+  - [Article in
+    LinkedIn](https://www.linkedin.com/pulse/fabrication-artificial-intelligence-agent-reservoir-history-reyes/)

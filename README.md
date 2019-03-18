@@ -4,6 +4,8 @@ history matching from the Volve dataset
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+[![DOI](https://zenodo.org/badge/174053578.svg)](https://zenodo.org/badge/latestdoi/174053578)
+
 # Introduction
 
 History matching is one of the core activities performed by petroleum

@@ -1,0 +1,41 @@
+{
+    "language": "eng", 
+    "license": "other-open", 
+    "title": "The fabrication of an artificial intelligence agent for reservoir history matching from the Volve dataset", 
+    "related_identifiers": [
+        {
+            "scheme": "url", 
+            "identifier": "https://github.com/f0nzie/volve_eclipse_reservoir/tree/v0.1", 
+            "relation": "isSupplementTo"
+        }, 
+        {
+            "scheme": "doi", 
+            "identifier": "10.5281/zenodo.2586209", 
+            "relation": "isSupplementedBy"
+        }, 
+        {
+            "scheme": "doi", 
+            "identifier": "10.5281/zenodo.2596619", 
+            "relation": "isVersionOf"
+        }
+    ], 
+    "publication_type": "workingpaper", 
+    "version": "v0.1", 
+    "upload_type": "publication", 
+    "keywords": [
+        "petroleum engineering", 
+        "reservoir simulation", 
+        "Volve dataset", 
+        "data science",
+        "artificial intelligence"
+    ], 
+    "publication_date": "2019-03-17", 
+    "creators": [
+        {
+            "affiliation": "Oil Gains Analytics", 
+            "name": "Alfonso R. Reyes"
+        }
+    ], 
+    "access_right": "open", 
+    "description": "<p>Notebooks, scripts and code for the article &quot;The fabrication of an artificial intelligence agent for reservoir history matching from the Volve dataset&quot; appeared in&nbsp;<a href=\"http://blog.oilgainsanalytics.com/publications/the-fabrication-of-an-artificial-intelligence-agent-for-reservoir-history-matching-from-the-volve-dataset/\">http://blog.oilgainsanalytics.com/publications/the-fabrication-of-an-artificial-intelligence-agent-for-reservoir-history-matching-from-the-volve-dataset/</a></p>"
+}
